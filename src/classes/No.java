@@ -1,19 +1,14 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
-
 package classes;
 
 public class No {
     int valor;
     No esquerda;
     No direita;
-    int contEsquerda = 0;
-    int contDireita = 0;
+    int contEsquerda = 0;  // Guarda o número de nós na subárvore esquerda
+    int contDireita = 0;   // Guarda o número de nós na subárvore direita
 
-    public No(int var1) {
-        this.valor = var1;
+    public No(int valor) {
+        this.valor = valor;
         this.esquerda = null;
         this.direita = null;
     }
