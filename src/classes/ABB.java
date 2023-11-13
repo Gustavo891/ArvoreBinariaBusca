@@ -1,235 +1,254 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
-
 package classes;
 
 public class ABB {
-    No raiz = null;
-    private int contador;
-    private int posicaoEncontrada;
+    No raiz;
 
     public ABB() {
+        raiz = null;
     }
 
     public No getRaiz() {
-        return this.raiz;
+        return raiz;
     }
 
-    public int posicao(int var1) {
-        this.contador = 0;
-        this.posicaoEncontrada = -1;
-        this.buscaPosicaoRecursiva(this.raiz, var1);
-        return this.posicaoEncontrada;
+    private int contador;
+    private int posicaoEncontrada;
+
+    public int posicao(int valor) {
+        contador = 0;
+        posicaoEncontrada = -1;
+        buscaPosicaoRecursiva(raiz, valor);
+        return posicaoEncontrada;
     }
 
-    private void buscaPosicaoRecursiva(No var1, int var2) {
-        if (var1 != null && this.posicaoEncontrada == -1) {
-            this.buscaPosicaoRecursiva(var1.esquerda, var2);
-            ++this.contador;
-            if (var1.valor == var2) {
-                this.posicaoEncontrada = this.contador;
-            } else {
-                this.buscaPosicaoRecursiva(var1.direita, var2);
-            }
+    private void buscaPosicaoRecursiva(No atual, int valor) {
+        if (atual == null || posicaoEncontrada != -1) {
+            return;
         }
-    }
 
-    public boolean contemRec(No var1, int var2) {
-        if (var1 == null) {
-            return false;
-        } else if (var2 == var1.valor) {
-            return true;
-        } else {
-            return var2 < var1.valor ? this.contemRec(var1.esquerda, var2) : this.contemRec(var1.direita, var2);
+        buscaPosicaoRecursiva(atual.esquerda, valor);
+
+        contador++;
+        if (atual.valor == valor) {
+            posicaoEncontrada = contador;
+            return;
         }
+        buscaPosicaoRecursiva(atual.direita, valor);
     }
 
-    public boolean remove(int var1) {
-        if (!this.contemRec(this.raiz, var1)) {
+    public boolean contemRec(No atual, int valor) {
+        if (atual == null) {
             return false;
-        } else {
-            this.raiz = this.removeRec(this.raiz, var1);
+        }
+        if (valor == atual.valor) {
             return true;
         }
+        return valor < atual.valor ? contemRec(atual.esquerda, valor) : contemRec(atual.direita, valor);
     }
 
-    private No removeRec(No var1, int var2) {
-        if (var1 == null) {
-            return var1;
+    public boolean remove(int valor) {
+        if (!contemRec(raiz, valor)) {
+            return false;
+        }
+        raiz = removeRec(raiz, valor);
+        return true;
+    }
+
+
+    private No removeRec(No atual, int valor) {
+        if (atual == null)
+            return atual;
+
+        if (valor < atual.valor) {
+            atual.esquerda = removeRec(atual.esquerda, valor);
+            atual.contEsquerda--;
+        } else if (valor > atual.valor) {
+            atual.direita = removeRec(atual.direita, valor);
+            atual.contDireita--;
         } else {
-            if (var2 < var1.valor) {
-                var1.esquerda = this.removeRec(var1.esquerda, var2);
-                --var1.contEsquerda;
-            } else if (var2 > var1.valor) {
-                var1.direita = this.removeRec(var1.direita, var2);
-                --var1.contDireita;
-            } else {
-                if (var1.esquerda == null) {
-                    return var1.direita;
-                }
+            if (atual.esquerda == null)
+                return atual.direita;
+            else if (atual.direita == null)
+                return atual.esquerda;
 
-                if (var1.direita == null) {
-                    return var1.esquerda;
-                }
-
-                var1.valor = this.maiorValor(var1.esquerda);
-                var1.esquerda = this.removeRec(var1.esquerda, var1.valor);
-            }
-
-            return var1;
+            atual.valor = maiorValor(atual.esquerda);
+            atual.esquerda = removeRec(atual.esquerda, atual.valor);
         }
+        return atual;
     }
 
-    private int maiorValor(No var1) {
-        int var2;
-        for(var2 = var1.valor; var1.direita != null; var1 = var1.direita) {
-            var2 = var1.direita.valor;
+    private int maiorValor(No raiz) {
+        int maiorValor = raiz.valor;
+        while (raiz.direita != null) {
+            maiorValor = raiz.direita.valor;
+            raiz = raiz.direita;
+        }
+        return maiorValor;
+    }
+
+    public double media(int x) {
+        No nodeX = buscaNo(raiz, x);
+        if (nodeX == null) {
+            return 0;
         }
 
-        return var2;
-    }
+        int soma = somaDosValores(nodeX);
+        int quantidade = contaNos(nodeX);
 
-    public double media(int var1) {
-        No var2 = this.buscaNo(this.raiz, var1);
-        if (var2 == null) {
-            return 0.0;
-        } else {
-            int var3 = this.somaDosValores(var2);
-            int var4 = this.contaNos(var2);
-            return var4 == 0 ? 0.0 : (double)var3 / (double)var4;
+        if (quantidade == 0) {
+            return 0;
         }
+        return (double) soma / quantidade;
     }
 
-    private int somaDosValores(No var1) {
-        return var1 == null ? 0 : var1.valor + this.somaDosValores(var1.esquerda) + this.somaDosValores(var1.direita);
+    private int somaDosValores(No no) {
+        if (no == null) {
+            return 0;
+        }
+        return no.valor + somaDosValores(no.esquerda) + somaDosValores(no.direita);
     }
 
-    private int contaNos(No var1) {
-        return var1 == null ? 0 : 1 + this.contaNos(var1.esquerda) + this.contaNos(var1.direita);
+    private int contaNos(No no) {
+        if (no == null) {
+            return 0;
+        }
+        return 1 + contaNos(no.esquerda) + contaNos(no.direita);
     }
 
-    private No buscaNo(No var1, int var2) {
-        if (var1 == null) {
+    private No buscaNo(No atual, int valor) {
+        if (atual == null) {
             return null;
-        } else if (var2 == var1.valor) {
-            return var1;
+        }
+        if (valor == atual.valor) {
+            return atual;
+        }
+        if (valor < atual.valor) {
+            return buscaNo(atual.esquerda, valor);
         } else {
-            return var2 < var1.valor ? this.buscaNo(var1.esquerda, var2) : this.buscaNo(var1.direita, var2);
+            return buscaNo(atual.direita, valor);
         }
     }
 
     public int mediana() {
-        int var1 = this.raiz.contDireita + this.raiz.contEsquerda;
-        return var1 % 2 == 0 ? this.enesimoElementoRecursivo(this.raiz, var1 / 2) : this.enesimoElementoRecursivo(this.raiz, (var1 + 1) / 2);
+        int total = raiz.contDireita + raiz.contEsquerda;
+        if (total % 2 == 0) {
+            return enesimoElementoRecursivo(raiz, total / 2);
+        } else {
+            return enesimoElementoRecursivo(raiz, (total + 1) / 2);
+        }
     }
 
-    public int enesimoElementoRecursivo(No var1, int var2) {
-        if (var1 == null) {
+    public int enesimoElementoRecursivo(No atual, int n) {
+        if (atual == null) {
             return Integer.MIN_VALUE;
+        }
+
+        int posAtual = (atual.esquerda != null ? atual.esquerda.contEsquerda + atual.esquerda.contDireita + 1 : 0) + 1;
+
+        if (posAtual == n) {
+            return atual.valor;
+        } else if (posAtual > n) {
+            return enesimoElementoRecursivo(atual.esquerda, n);
         } else {
-            int var3 = (var1.esquerda != null ? var1.esquerda.contEsquerda + var1.esquerda.contDireita + 1 : 0) + 1;
-            if (var3 == var2) {
-                return var1.valor;
-            } else {
-                return var3 > var2 ? this.enesimoElementoRecursivo(var1.esquerda, var2) : this.enesimoElementoRecursivo(var1.direita, var2 - var3);
-            }
+            return enesimoElementoRecursivo(atual.direita, n - posAtual);
         }
     }
 
-    public boolean insere(int var1) {
-        if (this.contemRec(this.raiz, var1)) {
+    public boolean insere(int valor) {
+        if (contemRec(raiz, valor)) {
             return false;
-        } else {
-            this.raiz = this.insereRec(this.raiz, var1);
-            return true;
         }
+        raiz = insereRec(raiz, valor);
+        return true;
     }
 
-    private No insereRec(No var1, int var2) {
-        if (var1 == null) {
-            return new No(var2);
-        } else {
-            if (var2 < var1.valor) {
-                var1.esquerda = this.insereRec(var1.esquerda, var2);
-                ++var1.contEsquerda;
-            } else if (var2 > var1.valor) {
-                var1.direita = this.insereRec(var1.direita, var2);
-                ++var1.contDireita;
-            }
-
-            return var1;
+    private No insereRec(No no, int valor) {
+        if (no == null) {
+            return new No(valor);
         }
+
+        if (valor < no.valor) {
+            no.esquerda = insereRec(no.esquerda, valor);
+            no.contEsquerda++;
+        } else if (valor > no.valor) {
+            no.direita = insereRec(no.direita, valor);
+            no.contDireita++;
+        }
+
+        return no;
     }
 
-    public String pre_ordemRec(No var1) {
-        if (var1 == null) {
+    public String pre_ordemRec(No no) {
+        if (no == null) {
             return "";
-        } else {
-            int var10000 = var1.valor;
-            return "" + var10000 + " " + this.pre_ordemRec(var1.esquerda) + this.pre_ordemRec(var1.direita);
         }
+
+        return no.valor + " " + pre_ordemRec(no.esquerda) + pre_ordemRec(no.direita);
     }
 
-    public boolean ehCheiaRec(No var1) {
-        if (var1 == null) {
+    public boolean ehCheiaRec(No no) {
+        if (no == null) {
             return true;
-        } else if (var1.esquerda == null && var1.direita != null || var1.esquerda != null && var1.direita == null) {
-            return false;
-        } else {
-            return this.ehCheiaRec(var1.esquerda) && this.ehCheiaRec(var1.direita);
         }
+
+        if ((no.esquerda == null && no.direita != null) || (no.esquerda != null && no.direita == null)) {
+            return false;
+        }
+
+        return ehCheiaRec(no.esquerda) && ehCheiaRec(no.direita);
     }
 
     public boolean ehCompleta() {
-        int var1 = this.altura(this.raiz);
-        int var2 = this.contaNos(this.raiz);
-        return (double)var2 >= Math.pow(2.0, (double)(var1 - 1)) && (double)var2 <= Math.pow(2.0, (double)var1) - 1.0;
+        int alturaTotal = altura(raiz);
+        int n = contaNos(raiz);
+        return n >= Math.pow(2, alturaTotal - 1) && n <= Math.pow(2, alturaTotal) - 1;
     }
 
-    public int altura(No var1) {
-        return var1 == null ? 0 : 1 + Math.max(this.altura(var1.esquerda), this.altura(var1.direita));
-    }
-
-    public String imprimeArvore(int var1) {
-        if (var1 == 1) {
-            return this.formato1(this.raiz, 0);
-        } else {
-            return var1 == 2 ? this.formato2(this.raiz) : "Formato inválido";
+    public int altura(No no) {
+        if (no == null) {
+            return 0;
         }
+        return 1 + Math.max(altura(no.esquerda), altura(no.direita));
     }
 
-    private String formato1(No var1, int var2) {
-        if (var1 == null) {
+    public String imprimeArvore(int s) {
+        if (s == 1) {
+            return formato1(raiz, 0);
+        } else if (s == 2) {
+            return formato2(raiz);
+        }
+        return "Formato inválido";
+    }
+
+    private String formato1(No atual, int profundidade) {
+        if (atual == null) {
             return "";
-        } else {
-            StringBuilder var3 = new StringBuilder();
-
-            int var4;
-            for(var4 = 0; var4 < var2 * 15; ++var4) {
-                var3.append(" ");
-            }
-
-            var3.append(var1.valor);
-
-            for(var4 = Integer.toString(var1.valor).length(); var4 < 15; ++var4) {
-                var3.append("-");
-            }
-
-            var3.append("\n");
-            var3.append(this.formato1(var1.esquerda, var2 + 1));
-            var3.append(this.formato1(var1.direita, var2 + 1));
-            return var3.toString();
         }
+
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < profundidade * 15; i++) {
+            sb.append(" ");
+        }
+
+        sb.append(atual.valor);
+
+        for (int i = Integer.toString(atual.valor).length(); i < 15; i++) {
+            sb.append("-");
+        }
+
+        sb.append("\n");
+
+        sb.append(formato1(atual.esquerda, profundidade + 1));
+        sb.append(formato1(atual.direita, profundidade + 1));
+
+        return sb.toString();
     }
 
-    private String formato2(No var1) {
-        if (var1 == null) {
+    private String formato2(No atual) {
+        if (atual == null) {
             return "";
-        } else {
-            int var10000 = var1.valor;
-            return "(" + var10000 + this.formato2(var1.esquerda) + this.formato2(var1.direita) + ")";
         }
+        return "(" + atual.valor + formato2(atual.esquerda) + formato2(atual.direita) + ")";
     }
 }
